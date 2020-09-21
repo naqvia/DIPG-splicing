@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+##
+## build_table_of_uniprot_features.pl
+##
+
+##run script to find dominant isoform and generate bed files for exons
+system("perl scripts/extract_recurrent_dominant_lsvs.pl | grep "*" | awk '{print $6"\t"$1"\t"$2"\t"$7}'| perl -pe 's/(chr[\d+XY]+)\:/$1\t/g' | awk -F "-" '{print $1"\t"$2"-"$3"-"$4}' | awk '{if($6 == "+"){ print $0 } else {print $0"-" }}' | perl -pe 's/\*//'");
