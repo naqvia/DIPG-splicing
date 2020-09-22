@@ -165,36 +165,6 @@ else{
 }
 
 __DATA__
-    print $spliced_event{$splice_id}{$sample}[0];
-    print ",";
-  }
-  print "\t";
-  foreach my $sample(@samples)
-  {
-
-    print ${$spliced_event{$splice_id}{$sample}}[1];
-    print ",";
-  }
-
-  print "\t";
-  foreach my $sample(@samples)
-  {
-
-    print ${$spliced_event{$splice_id}{$sample}}[2];
-    print ",";
-  }
-
-  print "\t";
-  foreach my $sample(@samples)
-  {
-
-    print ${$spliced_event{$splice_id}{$sample}}[3];
-    print ",";
-  }
-}
-
-
-__DATA__
 For each sample-
     Open SE only events:
       —> Filter for cancer drivers

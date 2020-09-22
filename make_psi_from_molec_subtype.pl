@@ -1,5 +1,9 @@
 #!/usr/bin/perl
 
+##
+## make_psi_from_molec_subtype.pl
+##
+
 my $dir_file = $ARGV[0];
 
 my (@MT_samples, @WT_samples);
