@@ -18,9 +18,11 @@ x=plotMDS((psi_dpsi), cex.lab= 1, cex = 1, col = c( c(rep("blue",39)), c(rep("pu
 
 ## PCA of HGGs (non-DMG) without H3K28M (blue) and DMGs WT (red) and DMGs H3K28 (red) based on recurrent splicing
 file = "/Users/naqvia/Desktop/DIPG/deltapsi_tab_rMATS.SE.HGGs_and_DMGs.sign05_rec36.recalc_h3k28.csv"
-
 psi_lsv <- read.csv(file ,header=TRUE,row.names=1)
 x=plotMDS((psi_lsv), cex.lab= 1, cex = 1, col = c( c(rep("blue",128)), c(rep("red",11)),c(rep("darkred",35)) ), main = "PCA of HGGs PSI", pch=c(rep(18,139),rep(20,35)))
 legend("bottomright", legend=c("HGGs-H3 WT","DMG-H3 WT","DMG-H3 K28"),col = c("blue","red","darkred"), pch = c(18,18,20),horiz=TRUE, cex=0.8)
 
-##PCA on expression
+##PCA clustering of tpms
+gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/gene_counts_tpm.by_status_HGGs_updated.txt",row.names=1, header=TRUE)
+x=plotMDS(log(gene_tpms), cex.lab= 1, cex = 1, col = c( c(rep("blue",128)), c(rep("red",11)),c(rep("darkred",35)) ), main = "PCA of HGGs Expr", pch=c(rep(18,139),rep(20,35)))
+legend("bottomright", legend=c("HGGs-H3 WT","DMG-H3 WT","DMG-H3 K28"),col = c("blue","red","darkred"), pch = c(18,18,20),horiz=TRUE, cex=0.8)
