@@ -1,9 +1,5 @@
 library("reshape")
 splice_subtype <- read.csv("/Users/naqvia/Desktop/DIPG/splice_freqs_by_subtype.IJC.w_perc.v2.csv", row.names = 1, header=TRUE)
-
-
-
-
 ggplot(splice_subtype, aes(x=H3K28, y=WT)) + geom_count(shape=18) + geom_point(shape=18,color="darkgreen") + 
   ggtitle("Aberrant Splicing Frequencies (%) across WT vs H3K28")+
   theme(plot.title = element_text(hjust = 0.5)) + 
@@ -118,6 +114,55 @@ EnhancedVolcano(res,
                 FCcutoff = 1,
                 pointSize = 1.0,
                 labSize = 3.0)
+
+
+## volcano of HGGs vs DMGs
+
+## expression of HGGs + DMGs
+gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/gene_counts_tpm.by_status_HGGs.txt",row.names=1, header=TRUE)
+gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/gene_counts_tpm.by_status_HGGs.SFs.txt",row.names=1, header=TRUE)
+countTable <- gene_tpms 
+head(countTable)
+
+filtered.counts <- countTable[rowSums(countTable>=10) > 10, ]
+countTable <- filtered.counts 
+
+# x=plotMDS(log(gene_tpms), cex.lab= 1, cex = 1, col = c( c(rep("darkgreen",11)),c(rep("red",36)), c(rep("blue",137)) ), main = "PCA of HGG Expr", pch=c(rep(19,184)))
+
+##construct metadata
+design = data.frame(row.names = colnames( countTable ),
+                    condition = c(rep("DMG",47), rep("non-DMG",135) ),  
+                    libType   = c(rep("paired-end",182)))
+
+singleSamples = design$libType == "paired-end"
+new_countTable = countTable[ , singleSamples ]
+condition = design$condition[ singleSamples ]
+
+cds = newCountDataSet( new_countTable, condition )
+cds = estimateSizeFactors( cds )
+sizeFactors( cds )
+cds = estimateDispersions( cds )
+
+res = nbinomTest( cds, "DMG", "non-DMG")
+res$Significant <- ifelse(res$pval< 0.05, "P-val < 0.05", "Not Sig")
+
+
+#x=plotMDS(log(gene_tpms), cex.lab= 1, cex = 1, col = c( c(rep("darkgreen",11)),c(rep("red",36)), c(rep("blue",137)) ), main = "PCA of HGG Expr", pch=c(rep(19,184)))
+
+##enhanced
+EnhancedVolcano(res,
+                lab = (res$id),
+                x = 'log2FoldChange',
+                y = 'pval',
+                xlim = c(-6,6),
+                ylim = c(0,20),
+                title = 'DMG vs non-DMG',
+                pCutoff = 0.005,
+                FCcutoff = 2,
+                pointSize = 1.0,
+                labSize = 3.0)
+
+
 
 
 ##theme
