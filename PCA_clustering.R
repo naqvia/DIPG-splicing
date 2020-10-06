@@ -26,3 +26,14 @@ legend("bottomright", legend=c("HGGs-H3 WT","DMG-H3 WT","DMG-H3 K28"),col = c("b
 gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/gene_counts_tpm.by_status_HGGs_updated.txt",row.names=1, header=TRUE)
 x=plotMDS(log(gene_tpms), cex.lab= 1, cex = 1, col = c( c(rep("blue",128)), c(rep("red",11)),c(rep("darkred",35)) ), main = "PCA of HGGs Expr", pch=c(rep(18,139),rep(20,35)))
 legend("bottomright", legend=c("HGGs-H3 WT","DMG-H3 WT","DMG-H3 K28"),col = c("blue","red","darkred"), pch = c(18,18,20),horiz=TRUE, cex=0.8)
+
+##check to see affect of stranded vs unstranded
+gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/gene_counts_ordered_by_polyA.txt",row.names=1, header=TRUE)
+x=plotMDS(log(gene_tpms), cex.lab= 1, cex = 1, col = c( c(rep("blue",130)), c(rep("red",52))), main = "PCA of polyA vs non_polyA", pch=c(rep(18,182)))
+
+gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/gene_counts_ordered_by_polyA_onlydmg_2.txt",row.names=1, header=TRUE)
+x=plotMDS(log(gene_tpms), cex.lab= 1, cex = 1, col = c( c(rep("blue",22)), c(rep("red",33))), main = "PCA of DMG polyA vs non_polyA", pch=c(rep(18,55)))
+
+x=plotMDS(log(gene_tpms), cex.lab= 1, cex = 1, col = c( c(rep("blue",13)), c(rep("red",32))), main = "PCA of DMG polyA vs non_polyA", pch=c(rep(18,45)))
+
+
