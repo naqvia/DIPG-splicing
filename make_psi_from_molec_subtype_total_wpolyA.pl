@@ -17,9 +17,10 @@ my %WT_samples_hgg;
 my @g35_samples_hgg;
 
 my (@polyA_samples, @nonpolyA_samples);
+my (%file_paths_controlBR, %file_paths_controlBS);
 
 ##add only dmg $samples
-my $hist = "pbta-histologies_w_added_col.tsv";
+my $hist = "pbta-histologies.addedv16.dat";
 open(FIL,$hist) || die("Cannot Open File $hist");
 while(<FIL>)
 {
@@ -27,7 +28,7 @@ while(<FIL>)
   my @cols = split "\t";
   my $id = $cols[0];
 
-  my $polya_status = $cols[20];
+  my $polya_status = $cols[21];
   if($polya_status=~/poly/)
   {
     push @polyA_samples, $id;
@@ -71,12 +72,45 @@ while(<FIL>)
     {
       #print "*id:".$id,"\n";
       $filter_wt_hgg{$id} = "WT_H3";
-      $status{$id} = "WT_hgg";
+      $status{$id} = "H3WT_HGG";
     }
   }
 }
+my (%file_paths_controlBS,%file_paths_controlBR);
 
-open(FIL,"controlBS_vs_DMG.SE.rmat_files.txt") || die("Cannot Open File");
+open(FIL,"controlBS_vs_BS.SE.rmat_files.txt") || die("Cannot Open File");
+while(<FIL>)
+{
+  chomp;
+  my $file = $_;
+  my $sample = "";
+  if($file=~/vs\_(BS\_\w+)\./)
+  {
+    #print "samp*".$1,"*\n";
+    $sample = $1;
+  }
+  $file_paths_controlBS{$sample} = $file;
+
+}
+close(FIL);
+
+open(FIL,"controlBR_vs_BS.SE.rmat_files.txt") || die("Cannot Open File");
+while(<FIL>)
+{
+  chomp;
+  my $file = $_;
+  my $sample = "";
+  if($file=~/vs\_(BS\_\w+)\./)
+  {
+    #print "samp*".$1,"*\n";
+    $sample = $1;
+  }
+  $file_paths_controlBR{$sample} = $file;
+
+}
+close(FIL);
+
+open(FIL,"controlBS_vs_BS.SE.rmat_files.txt") || die("Cannot Open File");
 while(<FIL>)
 {
   chomp;
@@ -88,9 +122,20 @@ while(<FIL>)
     $sample = $1;
   }
 
-  ## skip over G35 samples
-  #next if $filter_g35_hgg{$sample};
+  ## skip unless H3K28, DMG, or HGG
+  next unless ( $filter_wt_hgg{$sample} || $filter_mt{$sample} || $filter_wt{$sample});
 
+  ## skip over G35 samples
+  next if $filter_g35_hgg{$sample};
+
+  ## control for HGGs non DMG are BR (brain homogenate)
+  if($filter_wt_hgg{$sample})
+  {
+    $file = $file_paths_controlBR{$sample};
+    #print "enter\t",$file,"\n";
+  }
+
+  #print "enter\t",$file,"\n";
   open(SE_FIL,$file);
   while(<SE_FIL>)
   {
@@ -98,11 +143,10 @@ while(<FIL>)
     if($_=~/^\d+/)
     {
       #print "*".$_,"\n";
-
       my @cols = split "\t";
       my $gene = $cols[2];
       my $chr  = $cols[3];
-      my $str  =   $cols[4];
+      my $str  = $cols[4];
 
       my $exon_start    = $cols[5];
       my $exon_end      = $cols[6];
@@ -120,6 +164,8 @@ while(<FIL>)
       next unless ($tumor_IJC >=10);
       next unless ($tumor_SJC >=10);
 
+      ##filter for microexons only
+      next if ($exon_end - $exon_start > 30);
 
       #print "*",$_,"\n";
       my $splice_id = $gene."_".$chr.":".$exon_start."-".$exon_end;
@@ -130,7 +176,7 @@ while(<FIL>)
       push @splice_id, $splice_id;
       $samples_filter{$sample} = $sample;
 
-      print "*".$sample,"\t",$splice_id,"\t",$tumor_IJC, "\t",$tumor_SJC,"\t",$inc_from_len,"\t",$skip_from_len,"\n";
+      #print "*".$sample,"\t",$splice_id,"\t",$tumor_IJC, "\t",$tumor_SJC,"\t",$inc_from_len,"\t",$skip_from_len,"\n";
 
       push @{$spliced_event{$splice_id}{$sample}}, $tumor_IJC, $tumor_SJC,$inc_from_len,$skip_from_len;
       $splice_id_count{$splice_id}++;
@@ -261,7 +307,7 @@ foreach my $splice_id(@splice_id_uniq)
         print $tumor_IJCs{$splice_id}{$sample};
       }
       else{
-        print $sample,"*:","0.001";
+        print "0.001";
       }
     }
   }
