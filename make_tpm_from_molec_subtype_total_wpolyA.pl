@@ -73,7 +73,7 @@ while(<FIL2>)
 }
 
 ##add only dmg $samples
-my $hist = "pbta-histologies_w_added_col.tsv";
+my $hist = "pbta-histologies.addedv16.dat";
 open(FIL,$hist) || die("Cannot Open File $hist");
 while(<FIL>)
 {
@@ -81,7 +81,7 @@ while(<FIL>)
   my @cols = split "\t";
   my $id = $cols[0];
 
-  my $polya_status = $cols[20];
+  my $polya_status = $cols[21];
   if($polya_status=~/poly/)
   {
     push @polyA_samples, $id;
@@ -230,9 +230,9 @@ foreach my $gene(@genes_uniq)
     {
       if($filter_wt_hgg{$sample})
       {
-      #  print ",";
-      #  my $rounded = sprintf "%.0f", $tpm{$sample}{$gene};
-      #  print $rounded; #int ",nonpolyA_hgg_wt:",$nonpolyA_sample;
+        #print ",";
+        #my $rounded = sprintf "%.0f", $tpm{$sample}{$gene};
+        #print $rounded; #int ",nonpolyA_hgg_wt:",$nonpolyA_sample;
       }
     }
     foreach my $sample(@nonpolyA_samples_uniq)
