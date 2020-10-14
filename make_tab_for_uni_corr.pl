@@ -5,10 +5,12 @@
 ## make_tab_for_uni_corr.pl
 ##
 
-my $lsv_tab = $ARGV[0]; ## tab_global_splicing.total_lsv_names_updated.tsv
-my $tsv_files = $ARGV[1]; ## dmg_file_names_total.dat
+my $lsv_tab = $ARGV[0]; ## re_analysis/tab_global_splicing.total_lsv_names_updated.tsv
+my $tsv_files = $ARGV[1]; ## re_analysis/dmg_file_names_total.dat
 
 my %lsv_uni_filter;
+
+my %gene_count;
 
 open(FIL,$lsv_tab) || die("Cannot Open File $lsv_tab");
 while(<FIL>)
@@ -16,7 +18,7 @@ while(<FIL>)
   chomp;
   my ($gene, $lsv_id, $count) = split "\t";
   #my ($gene, $lsv_id, $count) = split(',', $_);
-  if($count >= 53)
+  if($count >= 75)
   {
     my $lsv_name = $gene."_".$lsv_id;
    #print "X".$count."\t".$lsv_name,"X\n";
@@ -65,6 +67,7 @@ while(<FIL>)
     my @psi_case = split/;/,$psi_case;
     my @exon_coord = split/;/,$exon_coords;
 
+    $gene_count{$gene_count}++;
 
     ## remove complex LSVs
     #next unless ( scalar(@psi_ctrl) == (scalar(@exon_coord)-1));
@@ -97,6 +100,8 @@ while(<FIL>)
     #print $relevant_dpsi[$index_of_max_dpsi],",\t";
     #print join "\t",@relevant_dpsi,"*\n";
 
+
+
   if($counter < 1)
   {
     $lsv_max_dpsi_index{$lsv_name} = $index_of_max_dpsi;
@@ -108,12 +113,18 @@ while(<FIL>)
 }
 
 my @total_lsv_names_uniq = do { my %seen; grep { !$seen{$_}++ } @total_lsv_names };
+my %gene_count;
 
 print "";
 foreach my $lsv(@total_lsv_names_uniq)
 {
   print ",";
-  print $lsv;
+  my ($gene,$lsv_id) = split/\_/,$lsv;
+  $gene_count{$gene}++;
+
+  print $gene,"_",$gene_count{$gene};
+
+
 }
 print "\n";
 

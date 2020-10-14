@@ -87,8 +87,10 @@ while(<FIL>)
 }
 close(FIL);
 
+
+
 ## open histology file and annotate DIPG/DMG reads
-my $hist = "pbta-histologies_w_added_col.tsv";
+my $hist = "pbta-histologies.addedv16.dat";
 open(FIL,$hist) || die("Cannot Open File $hist");
 while(<FIL>)
 {
@@ -104,7 +106,7 @@ while(<FIL>)
     }
     else
     {
-      $ids_dmg{$id} = "WT_H3";
+      $ids_dmg{$id} = "H3WT";
     }
   }
   else{
@@ -150,26 +152,7 @@ push @tsv_HGGs_DIPGs,@ctrl_bs_files;
 #push @tsv_HGGs_DIPGs,@srr4787052_files;
 #push @tsv_HGGs_DIPGs,@nc_pub_files;
 
-# open(MAN,$hgg_dipg_manifest) || die("Cannot Open file $hgg_dipg_manifest");
-# while(<MAN>)
-# {
-# 	chomp;
-# 	next unless($_=~/tsv/);
-#   next unless ($_=~/control\-BS/);
-#
-# 	my @cols    = split/\,/;
-# 	my $id          = $cols[0];
-# 	my $name        = $cols[1];
-# 	my $biospecimen = $cols[3];
-# 	my $norm_id     = $cols[5];
-#
-#   #print "name manifest ",$biospecimen,"\n";
-# 	$id_to_normal{$biospecimen} = $norm_id;
-# 	$id_to_biospecimen{$biospecimen} = $name;
-# 	#$id_dipg{$biospecimen} = $biospecimen;
-# 	push @biospecimen,$biospecimen;
-# }
-# close(MAN);
+
 
 
 my %gene_aspliced;
@@ -253,8 +236,8 @@ foreach my $tsv(@ctrl_bs_files)
 
   #print $biospecimen,"*\n";
   next unless $ids_dmg{$biospecimen};
-
-  print "*",$biospecimen,"\t",$tsv,"\n";
+  #print "full_name*".$biospecimen,"*\n";
+  print "*".$biospecimen,"\t",$tsv,"\n";
   open(TSV,$tsv) || die("Cannot Open File");
   while(<TSV>)
   {
@@ -271,6 +254,7 @@ foreach my $tsv(@ctrl_bs_files)
       #$gene = $cols[0];
 
       #print "sample ".$biospecimen." ".$gene,"\n";
+      print "diff\t",$cols[0]."_".$cols[2],"\n";
 
       next if $gene_spliced{$biospecimen}{$gene};
       #print "sample ".$biospecimen." ".$gene,"\n";
@@ -279,14 +263,17 @@ foreach my $tsv(@ctrl_bs_files)
     }
 }
 
+print "Sample\tAlternative\tAberrant\n";
 foreach my $sample(keys %sample_expr_totals)
 {
   next unless $asplicing_total{$sample};
   next unless $ids_dmg{$sample};
 
-  print "totals\tsample:",$sample,"\texpr_totals:",$sample_expr_totals{$sample},"\taberrant:";
-  print $splicing_total{$sample},"\talternative:";
-  print $asplicing_total{$sample},"\t";
+  #print "totals\tsample:",$sample,"\texpr_totals:",$sample_expr_totals{$sample},"\taberrant:";
+  #print $splicing_total{$sample},"\talternative:";
+  #print $asplicing_total{$sample},"\t";
+
+  print $sample,"\t";
 
   print sprintf ("%.2f",$asplicing_total{$sample}/$sample_expr_totals{$sample});
   print "\t";
