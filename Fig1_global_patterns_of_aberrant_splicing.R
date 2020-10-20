@@ -24,7 +24,7 @@ p <- ggplot(data=data_long, aes(x=Sample, y=Percentage, fill=Splicing)) +
 
 ## histogram of differential LSVs in cohort
 tab_total <- read.csv("/Users/naqvia/Desktop/DIPG/re_analysis/tab_diff_splicing.total.ggplot.txt",sep=",",header=TRUE)
-p<-ggplot(tab_total, aes(x=Counts))  + geom_histogram(color="black", fill="blue",binwidth=1) +  ylab("Differential LSV count ") + xlab("Num of samples") + 
+p<-ggplot(tab_total, aes(x=Counts))  + geom_histogram(color="black", fill="blue",binwidth=1) +  ylab("LSV count ") + xlab("Num of samples with Differential LSV")+
   theme_Publication()
 
 ## overlap normals vs DMG LSVs
@@ -65,7 +65,7 @@ batch<- c(rep(1, 51), rep(2, 105)) ## polyA vs non-polyA
 adjusted <- ComBat_seq(as.matrix(log2(gene_tpms+1)), batch=batch, group=NULL)
 corrected_mat <- 2^(adjusted) 
 
-x=plotMDS(log(corrected_mat), cex.lab= 1, cex = 1, col = c( c(rep("blue", 14)),c(rep("red",4)), c(rep("darkred",33 )),c(rep("blue",64)), c(rep("red",7)), c(rep("darkred", 34))), main = "PCA of HGG vs DMG IJC", pch=c(rep(16,51), c(rep(17,105))))
+x=plotMDS(log(corrected_mat), cex.lab= 1, cex = 1, col = c( c(rep("blue", 14)),c(rep("red",4)), c(rep("darkred",33 )),c(rep("blue",64)), c(rep("red",7)), c(rep("darkred", 34))), main = "PCA of HGG vs DMG Expr", pch=c(rep(16,51), c(rep(17,105))))
 legend("bottomleft", legend=c("HGGs-H3 WT PolyA","DMG-H3 WT PolyA","DMG-H3 K28 PolyA","HGGs-H3 WT Non-PolyA","DMG-H3 WT Non-PolyA","DMG-H3 K28 Non-PolyA" ),col = c("blue","red","darkred","blue","red","darkred"), pch = c(16,16,16,17,17,17), horiz=TRUE, cex=0.5)
 pc <- princomp(log(corrected_mat_psi), scores=TRUE)
 plot(pc,type="lines")
@@ -79,7 +79,6 @@ gene_psi <- read.csv("/Users/naqvia/Desktop/DIPG/re_analysis/psi_ijc_ordered_by_
 
 #batch_psi<- c(rep(1, 52), rep(2, 123)) ## polyA vs non-polyA
 batch_psi<- c(rep(1, 51), rep(2, 105)) ## polyA vs non-polyA
-
 
 adjusted_psi <- ComBat_seq(as.matrix((gene_psi)), batch=batch_psi, group=NULL)
 corrected_mat_psi <- (adjusted_psi) 
