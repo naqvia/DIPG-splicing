@@ -8,6 +8,14 @@ library("plyr")
 library("dplyr")
 library("VennDiagram")
 
+file="/Users/naqvia/Desktop/DIPG/splicing_class_pie.dat"
+class <- read.table(file, header=TRUE,sep = "\t")
+
+# Basic piechart
+ggplot(class, aes(x="", y=Counts, fill=Class)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) + theme_minimal() +
+  scale_fill_manual(values=c("palegreen3", "palegreen4","red1","blue","red3"))
 
 tab <- read.table("/Users/naqvia/Desktop/DIPG/re_analysis/absplicing_asplicing_expr_ggplot.txt",,sep="\t",header=TRUE)
 data_long <- gather(tab, Splicing, Percentage, Alternative:Aberrant, factor_key=TRUE)
@@ -18,8 +26,6 @@ p <- ggplot(data=data_long, aes(x=Sample, y=Percentage, fill=Splicing)) +
   geom_bar(stat="identity", color="black", position=position_dodge()) +
   scale_fill_manual(values=c('lightblue','blue')) + 
   theme_Publication()
-
-
 
 
 ## histogram of differential LSVs in cohort
@@ -35,9 +41,19 @@ venn.diagram(list("Normals" = venn_data$Normals, "DMG" = venn_data$DMG) ,fill = 
              main = "Normals vs DMG",
              filename = "/Users/naqvia/Desktop/normal_dmg_venn.tiff")
 
+## pie chart for splicing cases
+file="/Users/naqvia/Desktop/DIPG/splicing_class_pie.dat"
+class <- read.table(file, header=TRUE,sep = "\t")
+
+# Basic piechart
+ggplot(class, aes(x="", y=Counts, fill=Class)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) + theme_minimal() +
+  scale_fill_manual(values=c("palegreen3", "palegreen4","red1","blue","red3"))
+
 
 ## generate correlation matrix of universally mis-spliced events
-tab = read.csv("/Users/naqvia/Desktop/DIPG/re_analysis/max_dpsi_tab_for_univ.freq75.csv", header=TRUE,sep=",")
+tab = read.csv("/Users/naqvia/Desktop/DIPG/max_dpsi_tab_for_univ.csv", header=TRUE,sep=",")
 
 ## remove columns that have stdv of 0
 tab <- tab[, sapply(tab, function(x) { sd(x) != 0} )]
@@ -49,9 +65,12 @@ p <- corrplot(res2$r, type="lower", order="hclust",
          p.mat = res2$P, sig.level = 0.05, insig = "blank", tl.col = "black", tl.cex = 0.7,tl.srt = 1) 
 
 # write table txt of significant correlations
-# write.table(res2$P, file = "/Users/naqvia/Desktop/DIPG/pval_univ.txt", sep = "\t",row.names = TRUE, col.names = TRUE)
-# write.table(res2$r, file = "/Users/naqvia/Desktop/DIPG/rcorr_univ.txt", sep = "\t",row.names = TRUE, col.names = TRUE)
+ write.table(res2$P, file = "/Users/naqvia/Desktop/DIPG/uni_splicing_pval_univ.txt", sep = "\t",row.names = TRUE, col.names = TRUE)
+ write.table(res2$r, file = "/Users/naqvia/Desktop/DIPG/uni_splicing_rcorr_univ.txt", sep = "\t",row.names = TRUE, col.names = TRUE)
 
+ ##CLTA_vs_SPTAN1.txt, SGCE_vs_SPTAN1, SGCE_vs_CLTA.txt
+ psi_tab <- read.table("/Users/naqvia/Desktop/DIPG/SGCE_vs_CLTA.txt", header=TRUE,sep="\t")
+plot(psi_tab$SGCE,psi_tab$CLTA)
 
 ## cluster (PCA) with batch correction
 ##based on gene expression
