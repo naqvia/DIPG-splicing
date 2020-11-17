@@ -15,6 +15,66 @@ my $tumor_SJCs;
 my $inc_from_lens;
 my $skip_from_lens;
 
+my %filter_wt_hgg;
+
+#add only HGG $samples
+my $hist = "pbta-histologies.addedv16.dat";
+open(FIL,$hist) || die("Cannot Open File $hist");
+while(<FIL>)
+{
+  chomp;
+  my @cols = split "\t";
+  my $id = $cols[0];
+
+  my $polya_status = $cols[21];
+  if($polya_status=~/poly/)
+  {
+    push @polyA_samples, $id;
+  }
+  else
+  {
+    push @nonpolyA_samples, $id;
+  }
+  if($_=~/Diffuse\sintrinsic\spontine\sglioma/)
+  {
+    my @cols = split "\t";
+    my $id = $cols[0];
+
+
+    my $molec_subtype = $cols[-1];
+    if($molec_subtype=~/K28/)
+    {
+      $filter_mt{$id} = "H3K28";
+      $status{$id} = "H3K28";
+    }
+    else{
+      $filter_wt{$id} = "WT";
+      $status{$id} = "WT";
+    }
+  }
+  else{
+    my @cols = split "\t";
+    my $id = $cols[0];
+    my $molec_subtype = $cols[-1];
+    if($molec_subtype=~/K28/)
+    {
+      $filter_mt{$id} = "H3K28";
+      $status{$id} = "H3K28";
+    }
+    elsif($molec_subtype=~/G35/)
+    {
+      $filter_g35_hgg{$id} = "G35";
+      $status{$id} = "G35";
+    }
+    else
+    {
+      #print "*id:".$id,"\n";
+      $filter_wt_hgg{$id} = "WT_H3";
+      $status{$id} = "H3WT_HGG";
+    }
+  }
+}
+
 
 open(FIL,$dir_file) || die("Cannot Open File");
 while(<FIL>)
@@ -27,6 +87,8 @@ while(<FIL>)
     #print "samp*".$1,"*\n";
     $sample = $1;
   }
+  next unless $filter_wt_hgg{$sample};
+
   open(SE_FIL,$file);
   while(<SE_FIL>)
   {
@@ -42,6 +104,12 @@ while(<FIL>)
 
       my $exon_start    = $cols[5];
       my $exon_end      = $cols[6];
+      my $upstreamES	  = $cols[7];
+      my $upstreamEE	  = $cols[8];
+      my $downstreamES	= $cols[9];
+      my $downstreamEE  = $cols[10];
+
+
       my $tumor_IJC     = $cols[14];
       my $tumor_SJC     = $cols[15];
       my $inc_from_len  = $cols[16];
@@ -55,7 +123,7 @@ while(<FIL>)
 
 
       #print "*",$_,"\n";
-      my $splice_id = $gene."_".$chr.":".$exon_start."-".$exon_end;
+      my $splice_id = $gene."_".$chr.":".$exon_start."-".$exon_end."_".$upstreamES."-".$upstreamEE."_".$downstreamES."-".$downstreamEE;
       $splice_id=~s/\"//g;
       next unless ($pval<=0.05);
       push @samples, $sample;
@@ -83,10 +151,10 @@ while(<FIL>)
   chomp;
   my @cols = split "\t";
   my $biospecimen_id = $cols[0];
-  my $OS = $cols[21];
-  my $OS_status = $cols[22];
+  my $OS = $cols[22];
+  my $OS_status = $cols[23];
   next if ($OS=~/NA/);
-#  print "hist *".$biospecimen_id,"*\t",$OS,"\t",$OS_status,"\n";
+ #print "hist *".$biospecimen_id,"*\t",$OS,"\t",$OS_status,"\n";
 
   if($samples_filter{$biospecimen_id})
   {
