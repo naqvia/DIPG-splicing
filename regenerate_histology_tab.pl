@@ -8,7 +8,7 @@ my $pbta_hist = $ARGV[0];
 
 my (%dmg_samples, %hgg_samples);
 my %total_samples;
-my (%filter_hgg_wt, %filter_hgg_g35, %filter_hgg_g35, %filter_mt, %filter_wt);
+my (%filter_hgg_h3wt, %filter_hgg_g35, %filter_h3k28, %filter_h3wt);
 open(FILM,"dipg_samples_w_molecsubtype.txt") || die("Cannot Open File");
 while (<FILM>)
 {
