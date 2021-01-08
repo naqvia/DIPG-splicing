@@ -7,15 +7,32 @@ library("corrplot")
 library("plyr")
 library("dplyr")
 library("VennDiagram")
+library("dplyr")
+library("ggrepel")
+library("forcats")
+library("scales")
 
 file="/Users/naqvia/Desktop/DIPG/splicing_class_pie.dat"
 class <- read.table(file, header=TRUE,sep = "\t")
 
+class %>%
+  arrange(desc(Counts)) %>%
+  mutate(prop = percent(Counts / sum(Counts))) -> class 
+
+pie <- ggplot(mydf, aes(x = "", y = value, fill = fct_inorder(Group))) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  geom_label_repel(aes(label = prop), size=5, show.legend = F, nudge_x = 1) +
+  guides(fill = guide_legend(title = "Group"))
+
+
+
 # Basic piechart
 ggplot(class, aes(x="", y=Counts, fill=Class)) +
   geom_bar(stat="identity", width=1, color="white") +
-  coord_polar("y", start=0) + theme_minimal() +
-  scale_fill_manual(values=c("palegreen3", "palegreen4","red1","blue","red3"))
+  coord_polar("y", start=0) +
+  scale_fill_manual(values=c("palegreen1", "palegreen4","blue","red1","red4")) +
+  theme_minimal() 
 
 tab <- read.table("/Users/naqvia/Desktop/DIPG/re_analysis/absplicing_asplicing_expr_ggplot.txt",,sep="\t",header=TRUE)
 data_long <- gather(tab, Splicing, Percentage, Alternative:Aberrant, factor_key=TRUE)
@@ -74,7 +91,7 @@ plot(psi_tab$SGCE,psi_tab$CLTA)
 
 ## cluster (PCA) with batch correction
 ##based on gene expression
-gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/tpm_ordered_by_polyA_total.csv",row.names=1, header=TRUE)
+#gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/tpm_ordered_by_polyA_total.csv",row.names=1, header=TRUE)
 gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/re_analysis/tpm_ordered_by_polyA_total.csv", row.names = 1, header = TRUE)
 
 ## batch correction
@@ -84,8 +101,8 @@ batch<- c(rep(1, 51), rep(2, 105)) ## polyA vs non-polyA
 adjusted <- ComBat_seq(as.matrix(log2(gene_tpms+1)), batch=batch, group=NULL)
 corrected_mat <- 2^(adjusted) 
 
-x=plotMDS(log(corrected_mat), cex.lab= 1, cex = 1, col = c( c(rep("blue", 14)),c(rep("red",4)), c(rep("darkred",33 )),c(rep("blue",64)), c(rep("red",7)), c(rep("darkred", 34))), main = "PCA of HGG vs DMG Expr", pch=c(rep(16,51), c(rep(17,105))))
-legend("bottomleft", legend=c("HGGs-H3 WT PolyA","DMG-H3 WT PolyA","DMG-H3 K28 PolyA","HGGs-H3 WT Non-PolyA","DMG-H3 WT Non-PolyA","DMG-H3 K28 Non-PolyA" ),col = c("blue","red","darkred","blue","red","darkred"), pch = c(16,16,16,17,17,17), horiz=TRUE, cex=0.5)
+x=plotMDS(log(corrected_mat), cex.lab= 1, cex = 2, xlab = "PC1", ylab="PC2", col = c( c(rep("blue", 14)),c(rep("red",4)), c(rep("darkred",33 )),c(rep("blue",64)), c(rep("red",7)), c(rep("darkred", 34))), main = "PCA of HGG vs DMG Expr", pch=c(rep(16,51), c(rep(17,105))))
+#legend("bottomleft", legend=c("HGGs-H3 WT PolyA","DMG-H3 WT PolyA","DMG-H3 K28 PolyA","HGGs-H3 WT Non-PolyA","DMG-H3 WT Non-PolyA","DMG-H3 K28 Non-PolyA" ),col = c("blue","red","darkred","blue","red","darkred"), pch = c(16,16,16,17,17,17), horiz=TRUE, cex=0.5)
 pc <- princomp(log(corrected_mat_psi), scores=TRUE)
 plot(pc,type="lines")
 
@@ -102,8 +119,21 @@ batch_psi<- c(rep(1, 51), rep(2, 105)) ## polyA vs non-polyA
 adjusted_psi <- ComBat_seq(as.matrix((gene_psi)), batch=batch_psi, group=NULL)
 corrected_mat_psi <- (adjusted_psi) 
 
-x=plotMDS(log(corrected_mat_psi), cex.lab= 1, cex = 1, col = c( c(rep("blue", 14)),c(rep("red",4)), c(rep("darkred",33 )),c(rep("blue",64)), c(rep("red",7)), c(rep("darkred", 34))), main = "PCA of HGG vs DMG IJC", pch=c(rep(16,51), c(rep(17,105))))
-legend("bottomleft", legend=c("HGGs-H3 WT PolyA","DMG-H3 WT PolyA","DMG-H3 K28 PolyA","HGGs-H3 WT Non-PolyA","DMG-H3 WT Non-PolyA","DMG-H3 K28 Non-PolyA" ),col = c("blue","red","darkred","blue","red","darkred"), pch = c(16,16,16,17,17,17),horiz=TRUE, cex=0.5)
+## capture par settings, then add space to the right
+opar <- par(no.readonly = TRUE)
+par(xpd = TRUE, mar = par()$mar + c(0, 0, 0, 5))
+
+x=plotMDS(log(corrected_mat_psi), xlab = "PC1", ylab="PC2", cex.lab= 1, cex = 2, col = c( c(rep("blue", 14)),c(rep("red",4)), c(rep("darkred",33 )),c(rep("blue",64)), c(rep("red",7)), c(rep("darkred", 34))), main = "PCA of HGG vs DMG IJC", pch=c(rep(16,51), c(rep(17,105))))
+legend(par("usr")[2], par("usr")[4], c("HGGs-H3 WT PolyA","DMG-H3 WT PolyA","DMG-H3 K28 PolyA","HGGs-H3 WT Non-PolyA","DMG-H3 WT Non-PolyA","DMG-H3 K28 Non-PolyA"),col = c("blue","red","darkred","blue","red","darkred"), pch = c(16,16,16,17,17,17), bty = "n") 
+
+
+#legend("bottomleft", legend=c("HGGs-H3 WT PolyA","DMG-H3 WT PolyA","DMG-H3 K28 PolyA","HGGs-H3 WT Non-PolyA","DMG-H3 WT Non-PolyA","DMG-H3 K28 Non-PolyA" ),col = c("blue","red","darkred","blue","red","darkred"), pch = c(16,16,16,17,17,17),horiz=TRUE, cex=0.5)
+
+## test
+library(ggfortify)
+autoplot(cmdscale(corrected_mat_psi))
+
+
 
 ##elbow plot to see how PCs contribute to variability
 pc <- princomp(log(corrected_mat_psi), scores=TRUE)
@@ -136,7 +166,7 @@ venn.diagram(list("H3WT" = venn_data_h3wt$LSV, "H3K28" = venn_data_h3k28$LSV), f
 ## make volcano plot of WT-H3 vs H3K28M for differential expression analysis
 gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/re_analysis/tpm_ordered_by_polyA_dmg_only.csv",row.names=1, header=TRUE)
 batch <- c(rep(1, 37), rep(2, 41))
-filtered.counts <- countTable[rowSums(corrected_mat>=10) > 10, ]
+filtered.counts <- countTable[rowSums(gene_tpms>=10) > 10, ]
 countTable <- filtered.counts ## filter out  genes with low read counts
 
 ## batch correction
@@ -177,6 +207,12 @@ EnhancedVolcano(res,
                 FCcutoff = 1,
                 pointSize = 1.0,
                 labSize = 2.0)
+
+go_enrich <- read.csv("/Users/naqvia/Desktop/DIPG/re_analysis/gsea_go_res.david.top10.txt", sep="\t", header=TRUE)
+p<-ggplot(go_enrich, aes(x=PValue))  + geom_histogram(color="black", fill="blue",binwidth=1) +  ylab("LSV count ") + xlab("Num of samples with Differential LSV")+
+  theme_Publication()
+
+
 
 ## make volcano plot of G35M vs H3K28M for differential expression analysis
 gene_tpms <- read.csv("/Users/naqvia/Desktop/DIPG/tpm_ordered_by_polyA_g35_vs_h3k28.csv",row.names=1, header=TRUE)
