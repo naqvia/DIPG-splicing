@@ -9,7 +9,8 @@ my $dir_file = $ARGV[0];
 my %dmg_sample;
 
 #add only DMG $samples
-my $hist = "pbta-histologies.addedv16.dat";
+my $hist = "/Users/naqvia/Desktop/DIPG/pbta-histologies.addedv16.dat";
+
 open(FIL,$hist) || die("Cannot Open File $hist");
 while(<FIL>)
 {
@@ -73,7 +74,8 @@ while(<FIL>)
     $sample = $1;
   }
   next unless $dmg_sample{$sample};
-
+  print "sample\t";
+  print $sample,"\n";
   open(SE_FIL,$file);
   while(<SE_FIL>)
   {
@@ -101,7 +103,7 @@ while(<FIL>)
       my $skip_from_len = $cols[17];
       my $pval = $cols[18];
       my $thr_diff = $cols[-1];
-      next unless (abs($thr_diff) >= .10);
+      next unless (abs($thr_diff) >= .05);
       next unless ($pval<=0.05);
       next unless ($tumor_IJC >=10);
       next unless ($tumor_SJC >=10);
@@ -112,7 +114,7 @@ while(<FIL>)
       $splice_id=~s/\"//g;
       print $splice_id,"\t";
 
-      print $sample,"\n";
+      print $sample,"\t",$thr_diff,"\n";
       push @samples, $sample;
       push @splice_id, $splice_id;
       $samples_filter{$sample} = $sample;
