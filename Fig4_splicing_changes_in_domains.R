@@ -15,6 +15,7 @@ library(ggstatsplot)
 file="/Users/naqvia/Desktop/DIPG/output/dominant_events_lsvs.total.intersectUnip.ggplot.txt" 
 file="/Users/naqvia/Desktop/DIPG/re_analysis/dominant_events_lsvs.total.intersectUnip.uniq.ggplot.txt" 
 
+file="/Users/naqvia/Desktop/DIPG/re_analysis/tables/dominant_events_lsvs.total.intersectUnip_and_neg.uniq.ggplot.v3.txt"
 
 dpsi_unip <- read.table(file, header=TRUE,sep = "\t")
 
@@ -27,12 +28,14 @@ ggstatsplot::ggbetweenstats(
   k = 2,
   notch = FALSE,
   mean.ci = TRUE,
-  outlier.tagging = FALSE,
+  outlier.tagging = TRUE,
+  outlier.label = LSV,
   title = "Distribution of dPSI across functional sites",
-  type = "robust",
+  #type = "robust",
   xlab = "Unipro-defined Site",
   pairwise.comparisons = TRUE,
-  messages = TRUE
+  messages = TRUE + 
+  geom_text_repel()
 ) + theme_Publication()
 
 # 
@@ -90,6 +93,30 @@ ggstatsplot::combine_plots(
   title.size = 14,
   caption.size = 12
 )
+
+## CLK AS events (rMATS)
+file="/Users/naqvia/Desktop/DIPG/CLK_analysis/top_analysis/tab_for_ggplot.neg.v2.txt"
+
+dpsi_unip <- read.table(file, header=TRUE,sep = "\t")
+
+set.seed(123)
+
+ggstatsplot::ggbetweenstats(
+  data = dpsi_unip, 
+  x = Type, 
+  y = dPSI,
+  k = 2,
+  notch = FALSE,
+  mean.ci = FALSE,
+  outlier.tagging = TRUE,
+  outlier.label = LSV,
+  title = "Distribution of dPSI across functional sites",
+  #type = "robust",
+  xlab = "Type",
+  pairwise.comparisons = FALSE,
+  messages = TRUE 
+)
+
 
 file="/Users/naqvia/Desktop/DIPG/isoform_switch_pie.dat"
 switch_types <- read.table(file, header=TRUE,sep = "\t")
